@@ -33,6 +33,7 @@ export default defineConfig({
         "next/headers",
         "@kinde-oss/kinde-typescript-sdk",
         "@kinde/jwt-decoder",
+        "@kinde/js-utils",
         "@kinde/jwt-validator",
         "next/dist/server/web/spec-extension/cookies",
         "cookie",
