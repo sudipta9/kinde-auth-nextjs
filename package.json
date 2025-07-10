@@ -54,7 +54,6 @@
     }
   },
   "scripts": {
-    "prepare": "vite build",
     "build": "genversion --es6 src/utils/version.js && vite build",
     "build:watch": "genversion --es6 src/utils/version.js && vite build --watch",
     "test": "vitest",
