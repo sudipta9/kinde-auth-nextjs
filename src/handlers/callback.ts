@@ -1,3 +1,4 @@
+import { removeTrailingSlash } from "../utils/removeTrailingSlash";
 import { config, routes } from "../config/index";
 import RouterClient from "../routerClients/RouterClient";
 
@@ -99,8 +100,14 @@ export const callback = async (routerClient: RouterClient) => {
   if (postLoginRedirectURL && isRedirectAllowed(postLoginRedirectURL)) {
     const url = postLoginRedirectURL.startsWith("http")
       ? new URL(postLoginRedirectURL)
-      : new URL(postLoginRedirectURL, routerClient.clientConfig.siteUrl);
+      : new URL(
+          removeTrailingSlash(
+            new URL(routerClient.clientConfig.siteUrl).pathname,
+          ) + postLoginRedirectURL,
+          new URL(routerClient.clientConfig.siteUrl),
+        );
     state && url.searchParams.set("state", state);
+
     return routerClient.redirect(url.toString());
   }
 

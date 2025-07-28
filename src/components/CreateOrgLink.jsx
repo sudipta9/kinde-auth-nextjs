@@ -14,7 +14,7 @@ import { config, routes } from "../config/index";
 export function CreateOrgLink({ children, orgName, ...props }) {
   return (
     <a
-      href={`${config.apiPath}/${routes.createOrg}${
+      href={`/${config.redirectURL}${config.apiPath}/${routes.createOrg}${
         orgName ? `?org_name=${orgName}` : ""
       }`}
       {...props}
