@@ -50,7 +50,7 @@ const tokenFetcher = async (url) => {
  * @returns
  */
 export const KindeProvider = ({ children }) => {
-  const setupUrl = `${config.redirectURL ?? ''}${config.apiPath}/${routes.setup}`;
+  const setupUrl = `${config.redirectURL ?? ""}${config.apiPath}/${routes.setup}`;
 
   const refreshData = useCallback(() => {
     checkSession();

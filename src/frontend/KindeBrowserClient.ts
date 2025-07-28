@@ -82,7 +82,7 @@ export const useKindeBrowserClient = (
   };
 
   const fetchKindeState = async () => {
-    const setupUrl = `${apiPath}/${routes.setup}`;
+    const setupUrl = `${config.redirectURL ?? ""}${apiPath}/${routes.setup}`;
     const res = await fetch(setupUrl);
     const { message, error, ...kindeData } = await res.json();
     if (!res.ok) {
