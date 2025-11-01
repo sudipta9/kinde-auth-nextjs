@@ -2,6 +2,7 @@ import RouterClient from "../routerClients/RouterClient";
 import { isPreFetch } from "../utils/isPreFetch";
 import { getHeaders } from "../utils/getHeaders";
 import validateState from "../utils/validateState";
+import { config } from "../config/index";
 
 /**
  *
@@ -10,7 +11,7 @@ import validateState from "../utils/validateState";
 export const login = async (routerClient: RouterClient) => {
   const headers = await getHeaders(routerClient.req);
   if (isPreFetch(headers)) {
-    return routerClient.json({ message: "Prefetch skipped" }, { status: 200 });
+    return null;
   }
 
   const passedState = routerClient.searchParams.get("state");
@@ -20,7 +21,7 @@ export const login = async (routerClient: RouterClient) => {
       throw new Error("Invalid state supplied");
     }
 
-    routerClient.sessionManager.setSessionItem("state", passedState);
+    await routerClient.sessionManager.setSessionItem("state", passedState);
   }
 
   const authUrl = await routerClient.kindeClient.login(
@@ -33,12 +34,12 @@ export const login = async (routerClient: RouterClient) => {
     },
   );
 
-  const postLoginRedirectURL = routerClient.getSearchParam(
-    "post_login_redirect_url",
-  );
+  const postLoginRedirectURL =
+    routerClient.getSearchParam("post_login_redirect_url") ||
+    config.postLoginRedirectURL;
 
   if (postLoginRedirectURL) {
-    routerClient.sessionManager.setSessionItem(
+    await routerClient.sessionManager.setSessionItem(
       "post_login_redirect_url",
       postLoginRedirectURL,
     );
