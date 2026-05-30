@@ -7,6 +7,7 @@ import { setup } from "./setup";
 import { health } from "./health";
 import { portal } from "./portal";
 import { register } from "./register";
+import { endSession } from "./endSession";
 import AppRouterClient from "../routerClients/AppRouterClient";
 import PagesRouterClient from "../routerClients/PagesRouterClient";
 import { config, routes } from "../config/index";
@@ -22,6 +23,7 @@ const routeMap = {
   [routes.logout]: logout,
   [routes.health]: health,
   [routes.portal]: portal,
+  [routes.endSession]: endSession,
   kinde_callback: callback,
 };
 
@@ -39,7 +41,7 @@ const getRoute = (endpoint) => {
  * @param {{onError?: () => void; config: {audience?: string | string[], clientId?: string, clientSecret?: string, issuerURL?: string, siteUrl?: string, postLoginRedirectUrl?: string, postLogoutRedirectUrl?: string}}} [options]
  * @returns {(req, res) => any}
  */
-export default (request, endpoint, options) => {
+export const handleAuth = (request, endpoint, options) => {
   if (!config.clientOptions.authDomain)
     throw new Error(
       "The environment variable 'KINDE_ISSUER_URL' is required. Set it in your .env file",
