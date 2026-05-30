@@ -12,6 +12,7 @@ import { OAuth2CodeExchangeResponse } from "@kinde-oss/kinde-typescript-sdk";
 import { copyCookiesToRequest } from "../utils/copyCookiesToRequest";
 import { getStandardCookieOptions } from "../utils/cookies/getStandardCookieOptions";
 import { isPublicPathMatch } from "../utils/isPublicPathMatch";
+import { TWENTY_NINE_DAYS } from "src/utils/constants";
 import { removeTrailingSlash } from "../utils/removeTrailingSlash";
 
 const handleMiddleware = async (req, options, onSuccess) => {
@@ -90,7 +91,10 @@ const handleMiddleware = async (req, options, onSuccess) => {
   const resp = NextResponse.next();
 
   // if accessToken is expired, refresh it
-  if (isTokenExpired(kindeAccessToken) || isTokenExpired(kindeIdToken)) {
+  if (
+    isTokenExpired(kindeAccessToken, 20) ||
+    isTokenExpired(kindeIdToken, 20)
+  ) {
     if (config.isDebugMode) {
       console.log("authMiddleware: access token expired, refreshing");
     }
@@ -127,6 +131,13 @@ const handleMiddleware = async (req, options, onSuccess) => {
     }
 
     try {
+      let persistent = true;
+      const payload: { ksp?: { persistent: boolean } } | null = jwtDecoder<{
+        ksp: { persistent: boolean };
+      }>(refreshResponse.access_token);
+      if (payload) {
+        persistent = payload.ksp?.persistent ?? true;
+      }
       // if we want layouts/pages to get immediate access to the new token,
       // we need to set the cookie on the response here
       const splitAccessTokenCookies = getSplitCookies(
@@ -134,6 +145,9 @@ const handleMiddleware = async (req, options, onSuccess) => {
         refreshResponse.access_token,
       );
       splitAccessTokenCookies.forEach((cookie) => {
+        if (!persistent) {
+          delete cookie.options.maxAge;
+        }
         resp.cookies.set(cookie.name, cookie.value, cookie.options);
       });
 
@@ -142,13 +156,20 @@ const handleMiddleware = async (req, options, onSuccess) => {
         refreshResponse.id_token,
       );
       splitIdTokenCookies.forEach((cookie) => {
+        if (!persistent) {
+          delete cookie.options.maxAge;
+        }
         resp.cookies.set(cookie.name, cookie.value, cookie.options);
       });
 
+      const standardCookieOptions = getStandardCookieOptions();
+      if (!persistent) {
+        delete standardCookieOptions.maxAge;
+      }
       resp.cookies.set(
         "refresh_token",
         refreshResponse.refresh_token,
-        getStandardCookieOptions(),
+        standardCookieOptions,
       );
 
       // copy the cookies from the response to the request
@@ -229,6 +250,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
           "authMiddleware: onSuccess callback returned a response, copying our cookies to it",
         );
       }
+
       // Copy our cookies to their response
       resp.cookies.getAll().forEach((cookie) => {
         callbackResult.cookies.set(cookie.name, cookie.value, {
@@ -236,10 +258,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
         });
       });
 
-      // Copy any headers we set (if any) to their response
-      resp.headers.forEach((value, key) => {
-        callbackResult.headers.set(key, value);
-      });
+      copyCookiesToRequest(req, callbackResult);
 
       return callbackResult;
     }

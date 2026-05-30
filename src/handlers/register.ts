@@ -2,6 +2,7 @@ import RouterClient from "../routerClients/RouterClient";
 import { getHeaders } from "../utils/getHeaders";
 import { isPreFetch } from "../utils/isPreFetch";
 import validateState from "../utils/validateState";
+import { config } from "../config/index";
 
 /**
  *
@@ -23,12 +24,12 @@ export const register = async (routerClient: RouterClient) => {
     },
   );
 
-  const postLoginRedirectURL = routerClient.getSearchParam(
-    "post_login_redirect_url",
-  );
+  const postLoginRedirectURL =
+    routerClient.getSearchParam("post_login_redirect_url") ||
+    config.postLoginRedirectURL;
 
   if (postLoginRedirectURL) {
-    routerClient.sessionManager.setSessionItem(
+    await routerClient.sessionManager.setSessionItem(
       "post_login_redirect_url",
       postLoginRedirectURL,
     );
@@ -41,7 +42,7 @@ export const register = async (routerClient: RouterClient) => {
       throw new Error("Invalid state supplied");
     }
 
-    routerClient.sessionManager.setSessionItem("state", passedState);
+    await routerClient.sessionManager.setSessionItem("state", passedState);
   }
 
   return routerClient.redirect(authUrl.toString());
