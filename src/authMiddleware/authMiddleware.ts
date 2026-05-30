@@ -13,6 +13,7 @@ import { copyCookiesToRequest } from "../utils/copyCookiesToRequest";
 import { getStandardCookieOptions } from "../utils/cookies/getStandardCookieOptions";
 import { isPublicPathMatch } from "../utils/isPublicPathMatch";
 import { TWENTY_NINE_DAYS } from "src/utils/constants";
+import { removeTrailingSlash } from "../utils/removeTrailingSlash";
 
 const handleMiddleware = async (req, options, onSuccess) => {
   const { pathname, search } = req.nextUrl;
@@ -63,6 +64,11 @@ const handleMiddleware = async (req, options, onSuccess) => {
     config.isDebugMode,
   );
 
+  const redirectUrl = options?.redirectURLBase || config.redirectURL;
+  const redirectUrlBasePath = removeTrailingSlash(
+    new URL(redirectUrl).pathname,
+  );
+
   // getAccessToken will validate the token
   let kindeAccessToken = await getAccessToken(req);
   // getIdToken will validate the token
@@ -76,7 +82,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
       );
     }
     return NextResponse.redirect(
-      new URL(loginRedirectUrl, options?.redirectURLBase || config.redirectURL),
+      new URL(redirectUrlBasePath + loginRedirectUrl, redirectUrl),
     );
   }
 
@@ -201,7 +207,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
       );
     }
     return NextResponse.redirect(
-      new URL(loginRedirectUrl, options?.redirectURLBase || config.redirectURL),
+      new URL(redirectUrlBasePath + loginRedirectUrl, redirectUrl),
     );
   }
 
@@ -214,7 +220,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
       );
     }
     return NextResponse.redirect(
-      new URL(loginRedirectUrl, options?.redirectURLBase || config.redirectURL),
+      new URL(redirectUrlBasePath + loginRedirectUrl, redirectUrl),
     );
   }
 
@@ -281,7 +287,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
   }
 
   return NextResponse.redirect(
-    new URL(loginRedirectUrl, options?.redirectURLBase || config.redirectURL),
+    new URL(redirectUrlBasePath + loginRedirectUrl, redirectUrl),
   );
 };
 

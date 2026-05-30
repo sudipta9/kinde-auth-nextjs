@@ -13,7 +13,7 @@ import { config, routes } from "../config/index";
 export function LogoutLink({ children, postLogoutRedirectURL, ...props }) {
   return (
     <a
-      href={`${config.apiPath}/${routes.logout}${
+      href={`${config.redirectURL}${config.apiPath}/${routes.logout}${
         postLogoutRedirectURL
           ? `?post_logout_redirect_url=${postLogoutRedirectURL}`
           : ""

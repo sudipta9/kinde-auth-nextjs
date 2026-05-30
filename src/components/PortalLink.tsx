@@ -25,7 +25,7 @@ export function PortalLink({
   }
 
   const paramsString = params.toString();
-  const portalUrl = `${config.apiPath}/${routes.portal}${
+  const portalUrl = `${config.redirectURL}${config.apiPath}/${routes.portal}${
     paramsString ? `?${paramsString}` : ""
   }`;
 

@@ -29,7 +29,7 @@ export function LoginLink({
       const host =
         typeof window !== "undefined"
           ? window.location.origin
-          : process.env.KINDE_SITE_URL;
+          : new URL(process.env.KINDE_SITE_URL).origin;
       postLoginRedirectURL = `${host}${postLoginRedirectURL}`;
     }
     paramsObj.post_login_redirect_url = postLoginRedirectURL;
@@ -39,7 +39,7 @@ export function LoginLink({
 
   for (const key in paramsObj) params.append(key, paramsObj[key]);
 
-  const authUrl = `${config.apiPath}/${routes.login}${
+  const authUrl = `${config.redirectURL}${config.apiPath}/${routes.login}${
     params ? `?${params.toString()}` : ""
   }`;
   return (
